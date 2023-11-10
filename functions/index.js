@@ -3,7 +3,7 @@ const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
-const { calcRankPoints } = require('./modules/rank-manager');
+const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -78,8 +78,8 @@ app.get('/players/:discordId', async (req, res) => {
     res.status(200).json(dxmatePlayerData);
 });
 
-app.get('/rank/calc', (req, res) => {
-    logger.info('Received /rank/calc endpoint request.');
+app.get('/rank', (req, res) => {
+    logger.info('Received /rank endpoint request.');
 
     // Get mu and sigma from request.
     const { mu, sigma } = req.query;
@@ -89,11 +89,25 @@ app.get('/rank/calc', (req, res) => {
         return res.status(400).send('Required parameters are missing.');
     }
 
-    // Calculate Rank Points.
-    const rankPoints = calcRankPoints(mu, sigma);
-    logger.info('Calculated Rank Points:', rankPoints);
+    let rankData = {
+        points: 0,
+        name: 'BRONZE',
+        level: 0
+    };
 
-    res.status(200).json(rankPoints);
+    // Calculate Rank Points.
+    rankData.points = calcRankPoints(mu, sigma);
+    logger.info('Calculated Rank Points:', rankData.points);
+
+    // Get Rank Name.
+    rankData.name = getRankName(rankData.points);
+    logger.info('Retrieed Rank Name:', rankData.name);
+
+    // Get Rank Level.
+    rankData.level = getRankLevel(rankData.points);
+    logger.info('Retrieved Rank Level:', rankData.level);
+
+    res.status(200).json(rankData);
 });
 
 // Publish DXmate API.
