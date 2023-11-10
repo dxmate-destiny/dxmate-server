@@ -1,19 +1,34 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-const {onRequest} = require("firebase-functions/v2/https");
+const functions = require('firebase-functions');
 const logger = require("firebase-functions/logger");
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+const { app } = require('./modules/dxmate-api-manager');
+const { checkDxmatePlayerRegistered } = require('./modules/realtime-database-manager');
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+app.get('/players/:discordId/check', async (req, res) => {
+    logger.info('Received /players/:discordId/exists endpoint request.');
+
+    // Get Discord ID from request.
+    const { discordId } = req.params;
+    logger.info('Discord ID:', discordId);
+
+    if (!discordId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    let dxmatePlayerRegistered = false;
+
+    try {
+        // Check if the DXmate player is registered.
+        dxmatePlayerRegistered = await checkDxmatePlayerRegistered(discordId);
+        logger.info('Registered:', dxmatePlayerRegistered);
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).json(dxmatePlayerRegistered);
+});
+
+// Publish DXmate API.
+exports.api = functions.https.onRequest(app);
