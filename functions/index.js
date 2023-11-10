@@ -3,6 +3,7 @@ const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
+const { calcRankPoints } = require('./modules/rank-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -75,6 +76,24 @@ app.get('/players/:discordId', async (req, res) => {
     }
 
     res.status(200).json(dxmatePlayerData);
+});
+
+app.get('/rank/calc', (req, res) => {
+    logger.info('Received /rank/calc endpoint request.');
+
+    // Get mu and sigma from request.
+    const { mu, sigma } = req.query;
+
+    if (!mu || !sigma) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    // Calculate Rank Points.
+    const rankPoints = calcRankPoints(mu, sigma);
+    logger.info('Calculated Rank Points:', rankPoints);
+
+    res.status(200).json(rankPoints);
 });
 
 // Publish DXmate API.
