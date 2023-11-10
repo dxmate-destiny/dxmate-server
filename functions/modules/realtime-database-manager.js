@@ -32,4 +32,14 @@ async function registerDxmatePlayer (discordId, slippiConnectCode, region) {
     await dxmatePlayerDataRef.set(defaultDxmatePlayerData);
 }
 
-module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer };
+async function getDxmatePlayerData (discordId) {
+    // Get DXmate player data reference.
+    const dxmatePlayerDataRef = rd.ref(`players/${discordId}`);
+
+    // Get DXmate player data snapshot.
+    const dxmatePlayerDataSnapshot = await dxmatePlayerDataRef.once('value');
+
+    return dxmatePlayerDataSnapshot.val();
+}
+
+module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData };
