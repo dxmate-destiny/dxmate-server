@@ -112,7 +112,7 @@ app.get('/rank', (req, res) => {
 });
 
 app.post('/rooms/search', async (req, res) => {
-    logger.info('Received /room/search endpoint request.');
+    logger.info('Received /rooms/search endpoint request.');
 
     // Get Match Mode, Discord ID, DXmate player data, and Rank Data from request.
     const {
