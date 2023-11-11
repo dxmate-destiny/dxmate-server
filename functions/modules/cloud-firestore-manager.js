@@ -113,7 +113,7 @@ async function createRoom (discordId, matchMode, dxmatePlayerData, rankData) {
         return roomRef.id;
     });
 
-    logger.info('[CLOUD FIRESTORE MANAGER] Joined room ID:', roomRef.id);
+    logger.info('[CLOUD FIRESTORE MANAGER] Joined room ID:', joinedRoomId);
 
     return joinedRoomId;
 }

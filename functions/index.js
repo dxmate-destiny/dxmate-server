@@ -141,7 +141,7 @@ app.post('/rooms/search', async (req, res) => {
     return res.status(200).json(joinedRoomId);
 });
 
-app.post('rooms/create', async (req, res) => {
+app.post('/rooms/create', async (req, res) => {
     logger.info('Received /rooms/create endpoint request.');
 
     // Get Match Mode, Discord ID, DXmate player data, and Rank Data from request.
