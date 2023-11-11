@@ -86,9 +86,36 @@ async function searchRoom (discordId, matchMode, dxmatePlayerData, rankData) {
         return null;
     });
 
-    logger.info('Joined room ID:', joinedRoomId);
+    logger.info('[CLOUD FIRESTORE MANAGER] Joined room ID:', joinedRoomId);
 
     return joinedRoomId;
 }
 
-module.exports = { searchRoom };
+async function createRoom (discordId, matchMode, dxmatePlayerData, rankData) {
+    const joinedRoomId = await cf.runTransaction(async (transaction) => {
+        // Get room reference.
+        const roomRef = cf.collection('rooms').doc();
+
+        // Create room.
+        transaction.set(roomRef, {
+            matchMode,
+            region: dxmatePlayerData.region,
+            rankLevel: rankData.level,
+            players: [{
+                discordId,
+                dxmatePlayerData,
+                rankData
+            }]
+        });
+        
+        logger.info('[CLOUD FIRESTORE MANAGER] Created room.');
+
+        return roomRef.id;
+    });
+
+    logger.info('[CLOUD FIRESTORE MANAGER] Joined room ID:', roomRef.id);
+
+    return joinedRoomId;
+}
+
+module.exports = { searchRoom, createRoom };
