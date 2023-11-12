@@ -1,5 +1,6 @@
 const { logger } = require('firebase-functions/v1');
 const { cf } = require('./firebase-productions-manager');
+const { shuffleArray } = require('./utils');
 
 async function searchRoom (discordId, matchMode, dxmatePlayerData, rankData) {
     const joinedRoomId = await cf.runTransaction(async (transaction) => {
@@ -128,4 +129,26 @@ async function getRoomData (roomId) {
     return roomData;
 }
 
-module.exports = { searchRoom, createRoom, getRoomData };
+function createTeam (players) {
+    logger.info('Before shuffle players:', players);
+
+    // Shuffle players array.
+    shuffleArray(players);
+    logger.info('After shuffle players:', players);
+
+    // Divide into teams.
+    const redTeam = players.slice(0, 2);
+    const blueTeam = players.slice(2, 4);
+
+    redTeam.forEach(player => {
+        player.team = 'red';
+    });
+
+    blueTeam.forEach(player => {
+        player.team = 'blue';
+    });
+
+    return players;
+}
+
+module.exports = { searchRoom, createRoom, getRoomData, createTeam };

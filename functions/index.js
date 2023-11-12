@@ -4,7 +4,7 @@ const logger = require("firebase-functions/logger");
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
-const { searchRoom, createRoom, getRoomData } = require('./modules/cloud-firestore-manager');
+const { searchRoom, createRoom, getRoomData, createTeam } = require('./modules/cloud-firestore-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -194,6 +194,24 @@ app.get('/rooms/:roomId', async (req, res) => {
     }
 
     return res.status(200).json(roomData);
+});
+
+app.post('/rooms/team/create', async (req, res) => {
+    logger.info('Received /rooms/team/create endpoint request.');
+
+    // Get Players from request.
+    const { players } = req.body;
+
+    if (!players) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    // Create team.
+    const teamCreatedPlayers = createTeam(players);
+    logger.info('Created Team:', teamCreatedPlayers);
+
+    return res.status(200).json(teamCreatedPlayers);
 });
 
 // Publish DXmate API.
