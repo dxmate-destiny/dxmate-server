@@ -153,7 +153,7 @@ function createTeam (players) {
 
 async function saveReportData (reportId, reportData) {
     await cf.runTransaction(async (transaction) => {
-        // Get room reference.
+        // Get report reference.
         const reportRef = cf.collection('reports').doc(reportId);
 
         // Save Report Data.
@@ -161,4 +161,18 @@ async function saveReportData (reportId, reportData) {
     });
 }
 
-module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData };
+async function getReportData (reportId) {
+    const reportData = await cf.runTransaction(async (transaction) => {
+        // Get report reference.
+        const reportRef = cf.collection('reports').doc(reportId);
+
+        // Get report data snapshot.
+        const reportSnapshot = await transaction.get(reportRef);
+
+        return reportSnapshot.data();
+    });
+
+    return reportData;
+}
+
+module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData };

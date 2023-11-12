@@ -4,7 +4,7 @@ const logger = require("firebase-functions/logger");
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
-const { searchRoom, createRoom, getRoomData, createTeam, saveReportData } = require('./modules/cloud-firestore-manager');
+const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData } = require('./modules/cloud-firestore-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -235,6 +235,31 @@ app.post('/reports', async (req, res) => {
     }
 
     res.status(200).send('Saved Report Data.');
+});
+
+app.get('/reports/:reportId', async (req, res) => {
+    logger.info('Received /reports/:reportId endpoint request.');
+
+    // Get Report ID from request.
+    const { reportId } = req.params;
+
+    if (!reportId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    let reportData = {};
+
+    try {
+        // Get Report Data.
+        reportData = await getReportData(reportId);
+        logger.info('Retrieved Report Data:', reportData);
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).json(reportData);
 });
 
 // Publish DXmate API.
