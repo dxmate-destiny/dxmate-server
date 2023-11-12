@@ -4,7 +4,7 @@ const logger = require("firebase-functions/logger");
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
-const { searchRoom, createRoom, getRoomData, createTeam } = require('./modules/cloud-firestore-manager');
+const { searchRoom, createRoom, getRoomData, createTeam, saveReportData } = require('./modules/cloud-firestore-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -141,7 +141,7 @@ app.post('/rooms/search', async (req, res) => {
     return res.status(200).json(joinedRoomId);
 });
 
-app.post('/rooms/create', async (req, res) => {
+app.post('/rooms', async (req, res) => {
     logger.info('Received /rooms/create endpoint request.');
 
     // Get Match Mode, Discord ID, DXmate player data, and Rank Data from request.
@@ -212,6 +212,29 @@ app.post('/rooms/team/create', async (req, res) => {
     logger.info('Created Team:', teamCreatedPlayers);
 
     return res.status(200).json(teamCreatedPlayers);
+});
+
+app.post('/reports', async (req, res) => {
+    logger.info('Received /reports endpoint request.');
+
+    // Get Report ID and Report Data from request.
+    const { reportId, reportData } = req.body;
+
+    if (!reportId || !reportData) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        // Save Report Data.
+        await saveReportData(reportId, reportData);
+        logger.info('Saved Report Data.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Saved Report Data.');
 });
 
 // Publish DXmate API.

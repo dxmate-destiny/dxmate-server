@@ -151,4 +151,14 @@ function createTeam (players) {
     return players;
 }
 
-module.exports = { searchRoom, createRoom, getRoomData, createTeam };
+async function saveReportData (reportId, reportData) {
+    await cf.runTransaction(async (transaction) => {
+        // Get room reference.
+        const reportRef = cf.collection('reports').doc(reportId);
+
+        // Save Report Data.
+        transaction.set(reportRef, reportData);
+    });
+}
+
+module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData };
