@@ -148,12 +148,12 @@ app.post('/rooms', async (req, res) => {
     // Get Match Mode, Discord ID, DXmate player data, and Rank Data from request.
     const {
         matchMode,
-        discordId,
+        discordUserData,
         dxmatePlayerData,
         rankData
     } = req.body;
 
-    if (!matchMode || !discordId || !dxmatePlayerData || !rankData) {
+    if (!matchMode || !discordUserData || !dxmatePlayerData || !rankData) {
         logger.error('Required parameters are missing.');
         return res.status(400).send('Required parameters are missing.');
     }
@@ -162,7 +162,7 @@ app.post('/rooms', async (req, res) => {
 
     try {
         // Search room.
-        joinedRoomId = await createRoom(discordId, matchMode, dxmatePlayerData, rankData);
+        joinedRoomId = await createRoom(discordUserData, matchMode, dxmatePlayerData, rankData);
         logger.info('Room ID:', joinedRoomId);
     } catch (error) {
         logger.error(error);

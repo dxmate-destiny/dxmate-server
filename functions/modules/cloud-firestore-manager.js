@@ -90,7 +90,7 @@ async function searchRoom (discordUserData, matchMode, dxmatePlayerData, rankDat
     return joinedRoomId;
 }
 
-async function createRoom (discordId, matchMode, dxmatePlayerData, rankData) {
+async function createRoom (discordUserData, matchMode, dxmatePlayerData, rankData) {
     const joinedRoomId = await cf.runTransaction(async (transaction) => {
         // Get room reference.
         const roomRef = cf.collection('rooms').doc();
@@ -101,7 +101,7 @@ async function createRoom (discordId, matchMode, dxmatePlayerData, rankData) {
             region: dxmatePlayerData.region,
             rankLevel: rankData.level,
             players: [{
-                discordId,
+                discordUserData,
                 dxmatePlayerData,
                 rankData
             }]
