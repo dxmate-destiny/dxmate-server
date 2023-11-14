@@ -2,7 +2,7 @@ const { logger } = require('firebase-functions/v1');
 const { cf } = require('./firebase-productions-manager');
 const { shuffleArray } = require('./utils');
 
-async function searchRoom (discordId, matchMode, dxmatePlayerData, rankData) {
+async function searchRoom (discordUserData, matchMode, dxmatePlayerData, rankData) {
     const joinedRoomId = await cf.runTransaction(async (transaction) => {
         // Get rooms reference.
         const roomsRef = cf.collection('rooms');
@@ -71,7 +71,7 @@ async function searchRoom (discordId, matchMode, dxmatePlayerData, rankData) {
 
                 // Add player data.
                 roomPlayers.push({
-                    discordId,
+                    discordUserData,
                     dxmatePlayerData,
                     rankData
                 });
