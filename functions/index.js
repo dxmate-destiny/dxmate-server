@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
-const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData } = require('./modules/realtime-database-manager');
+const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData } = require('./modules/cloud-firestore-manager');
 const { updateSkill } = require('./modules/openskill-manager');
@@ -78,6 +78,28 @@ app.get('/players/:discordId', async (req, res) => {
     }
 
     res.status(200).json(dxmatePlayerData);
+});
+
+app.post('/players/skill/update', async (req, res) => {
+    logger.info('Received /players/skill/update endpoint request.');
+
+    // Get Discord ID and Updated Skill from request.
+    const { discordId, skill } = req.body;
+
+    if (!discordId || !skill) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        // Update skill field.
+        await saveUpdatedSkill(discordId, skill);
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Saved updated skill.');
 });
 
 app.get('/rank', (req, res) => {

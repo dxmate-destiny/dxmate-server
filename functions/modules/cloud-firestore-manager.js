@@ -103,7 +103,8 @@ async function createRoom (discordUserData, matchMode, dxmatePlayerData, rankDat
             players: [{
                 discordUserData,
                 dxmatePlayerData,
-                rankData
+                rankData,
+                isHost: true
             }]
         });
         

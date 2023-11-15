@@ -42,4 +42,12 @@ async function getDxmatePlayerData (discordId) {
     return dxmatePlayerDataSnapshot.val();
 }
 
-module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData };
+async function saveUpdatedSkill (discordId, skill) {
+    // Get skill reference.
+    const skillRef = rd.ref(`players/${discordId}/skill`);
+
+    // update skill.
+    await skillRef.update(skill);
+}
+
+module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill };
