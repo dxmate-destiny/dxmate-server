@@ -5,7 +5,7 @@ const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData } = require('./modules/cloud-firestore-manager');
-const { updateSkill } = require('./modules/openskill-manager');
+const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -285,21 +285,38 @@ app.get('/reports/:reportId', async (req, res) => {
     res.status(200).json(reportData);
 });
 
-app.post('/skill/update', (req, res) => {
-    logger.info('Received /skill/update endpoint request.');
+app.post('/skill/singles/update', (req, res) => {
+    logger.info('Received /skill/singles/update endpoint request.');
 
-    // Get Winner Skill and Loser Skill.
-    const { winnerSkill, loserSkill } = req.query;
+    // Get Winner Skill and Loser Skill from request.
+    const { winnerSkill, loserSkill } = req.body;
 
     if (!winnerSkill || !loserSkill) {
         logger.error('Required parameters are missing.');
         return res.status(400).send('Required parameters are missing.');
     }
 
-    const updatedSkill = updateSkill(winnerSkill, loserSkill);
-    logger.info('Updated Skill:', updatedSkill);
+    const updatedSinglesSkill = updateSinglesSkill(winnerSkill, loserSkill);
+    logger.info('Updated Singles Skill:', updatedSinglesSkill);
 
-    res.status(200).json(updatedSkill);
+    res.status(200).json(updatedSinglesSkill);
+});
+
+app.post('/skill/doubles/update', (req, res) => {
+    logger.info('Received /skill/doubles/update endpoint request.');
+
+    // Get Winner Skills and Loser Skills from request.
+    const { winner1Skill, winner2Skill, loser1Skill, loser2Skill } = req.body;
+
+    if (!winner1Skill || !winner2Skill || !loser1Skill || !loser2Skill) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    const updatedDoublesSkill = updateDoublesSkill(winner1Skill, winner2Skill, loser1Skill, loser2Skill);
+    logger.info('Updated Doubles Skill:', updatedDoublesSkill);
+
+    res.status(200).json(updatedDoublesSkill);
 });
 
 // Publish DXmate API.
