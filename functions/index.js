@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
-const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill } = require('./modules/realtime-database-manager');
+const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData } = require('./modules/cloud-firestore-manager');
 const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
@@ -80,10 +80,10 @@ app.get('/players/:discordId', async (req, res) => {
     res.status(200).json(dxmatePlayerData);
 });
 
-app.post('/players/skill/update', async (req, res) => {
-    logger.info('Received /players/skill/update endpoint request.');
+app.post('/players/skill/singles/update', async (req, res) => {
+    logger.info('Received /players/skill/singles/update endpoint request.');
 
-    // Get Discord ID and Updated Skill from request.
+    // Get Discord ID and Doubles Skill from reqest.
     const { discordId, skill } = req.body;
 
     if (!discordId || !skill) {
@@ -92,14 +92,38 @@ app.post('/players/skill/update', async (req, res) => {
     }
 
     try {
-        // Update skill field.
-        await saveUpdatedSkill(discordId, skill);
+        // Save Singles updated skill.
+        await saveSinglesUpdatedSkill(discordId, skill);
+        logger.info('Saved Singles updated skill.');
     } catch (error) {
         logger.error(error);
         return res.status(500).send(error.message);
     }
 
-    res.status(200).send('Saved updated skill.');
+    res.status(200).send('Saved updated singles skill data.');
+});
+
+app.post('/players/skill/doubles/update', async (req, res) => {
+    logger.info('Received /players/skill/doubles/update endpoint request.');
+
+    // Get Discord ID and Doubles Skill from reqest.
+    const { discordId, skill } = req.body;
+
+    if (!discordId || !skill) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        // Save Doubles updated skill.
+        await saveDoublesUpdatedSkill(discordId, skill);
+        logger.info('Saved Doubles updated skill');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Saved updated doubles skill data.');
 });
 
 app.get('/rank', (req, res) => {

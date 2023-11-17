@@ -42,12 +42,20 @@ async function getDxmatePlayerData (discordId) {
     return dxmatePlayerDataSnapshot.val();
 }
 
-async function saveUpdatedSkill (discordId, skill) {
-    // Get skill reference.
-    const skillRef = rd.ref(`players/${discordId}/skill`);
+async function saveSinglesUpdatedSkill (discordId, skill) {
+    // Get Singles Skill reference.
+    const singlesSkillRef = rd.ref(`players/${discordId}/skill/singles`);
 
-    // update skill.
-    await skillRef.update(skill);
+    // Update skill.
+    await singlesSkillRef.update(skill);
 }
 
-module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill };
+async function saveDoublesUpdatedSkill (discordId, skill) {
+    // Get Doubles Skill reference.
+    const doublesSkillRef = rd.ref(`players/${discordId}/skill/doubles`);
+
+    // Update skill.
+    await doublesSkillRef.update(skill);
+}
+
+module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill };
