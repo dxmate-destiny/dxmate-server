@@ -130,6 +130,15 @@ async function getRoomData (roomId) {
     return roomData;
 }
 
+async function deleteRoomData (roomId) {
+    await cf.runTransaction(async (transaction) => {
+        // Get room reference.
+        const roomRef = cf.collection('rooms').doc(roomId);
+
+        transaction.delete(roomRef);
+    });
+}
+
 function createTeam (players) {
     logger.info('Before shuffle players:', players);
 
@@ -176,4 +185,13 @@ async function getReportData (reportId) {
     return reportData;
 }
 
-module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData };
+async function deleteReportData (reportId) {
+    await cf.runTransaction(async (transaction) => {
+        // Get report reference.
+        const reportRef = cf.collection('reports').doc(reportId);
+
+        transaction.delete(reportRef);
+    });
+}
+
+module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData };

@@ -4,7 +4,7 @@ const logger = require("firebase-functions/logger");
 const { app } = require('./modules/dxmate-api-manager');
 const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
-const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData } = require('./modules/cloud-firestore-manager');
+const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData } = require('./modules/cloud-firestore-manager');
 const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
 
 app.get('/players/:discordId/check', async (req, res) => {
@@ -237,6 +237,28 @@ app.post('/rooms/team/create', async (req, res) => {
     return res.status(200).json(teamCreatedPlayers);
 });
 
+app.post('/rooms/delete', async (req, res) => {
+    logger.info('Received /rooms/delete endpoint request.');
+
+    // Get Room ID from request.
+    const { roomId } = req.body;
+
+    if (!roomId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        await deleteRoomData(roomId);
+        logger.info('Deleted room data.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Deleted room data.');
+});
+
 app.post('/reports', async (req, res) => {
     logger.info('Received /reports endpoint request.');
 
@@ -283,6 +305,28 @@ app.get('/reports/:reportId', async (req, res) => {
     }
 
     res.status(200).json(reportData);
+});
+
+app.post('/reports/delete', async (req, res) => {
+    logger.info('Received /reports/delete endpoint request.');
+
+    // Get Room ID from request.
+    const { reportId } = req.body;
+
+    if (!reportId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        await deleteReportData(reportId)
+        logger.info('Deleted report data.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Deleted report data.');
 });
 
 app.post('/skill/singles/update', (req, res) => {
