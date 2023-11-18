@@ -73,7 +73,8 @@ async function searchRoom (discordUserData, matchMode, dxmatePlayerData, rankDat
                 roomPlayers.push({
                     discordUserData,
                     dxmatePlayerData,
-                    rankData
+                    rankData,
+                    isHost: false
                 });
 
                 // Join room.
