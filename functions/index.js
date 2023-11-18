@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
-const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill } = require('./modules/realtime-database-manager');
+const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill, addRankedSinglesMatchCount, addRankedDoublesMatchCount } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData } = require('./modules/cloud-firestore-manager');
 const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
@@ -124,6 +124,52 @@ app.post('/players/skill/doubles/update', async (req, res) => {
     }
 
     res.status(200).send('Saved updated doubles skill data.');
+});
+
+app.post('/players/ranked-match-count/singles/add', async (req, res) => {
+    logger.info('Received /players/ranked-match-count/singles/add endpoint request.');
+
+    // Get Discord ID from request.
+    const { discordId } = req.body;
+
+    if (!discordId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        // Add Ranked Singles match count.
+        await addRankedSinglesMatchCount(discordId);
+        logger.info('Added Ranked Singles match count.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Added Ranked Singles match count.');
+});
+
+app.post('/players/ranked-match-count/doubles/add', async (req, res) => {
+    logger.info('Received /players/ranked-match-count/doubles/add endpoint request.');
+
+    // Get Discord ID from request.
+    const { discordId } = req.body;
+
+    if (!discordId) {
+        logger.error('Required parameters are missing.');
+        return res.status(400).send('Required parameters are missing.');
+    }
+
+    try {
+        // Add Ranked Doubles match count.
+        await addRankedDoublesMatchCount(discordId);
+        logger.info('Added Ranked Doubles match count.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).send('Added Ranked Doubles match count.');
 });
 
 app.get('/rank', (req, res) => {

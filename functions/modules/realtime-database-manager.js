@@ -58,4 +58,32 @@ async function saveDoublesUpdatedSkill (discordId, skill) {
     await doublesSkillRef.update(skill);
 }
 
-module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill };
+async function addRankedSinglesMatchCount (discordId) {
+    // Get Ranked match count reference.
+    const rankedMatchCountRef = rd.ref(`players/${discordId}/rankedModeMatchCount`);
+
+    // Get current Ranked match count snapshot.
+    const currentRankedMatchCountSnapshot = await rankedMatchCountRef.once('value');
+
+    // Get current Ranked match count.
+    const currentRankedMatchCount = currentRankedMatchCountSnapshot.val();
+
+    // Add Ranked Singles match count.
+    await rankedMatchCountRef.update({ singles: currentRankedMatchCount.singles + 1 });
+}
+
+async function addRankedDoublesMatchCount (discordId) {
+    // Get Ranked match count reference.
+    const rankedMatchCountRef = rd.ref(`players/${discordId}/rankedModeMatchCount`);
+
+    // Get current Ranked match count snapshot.
+    const currentRankedMatchCountSnapshot = await rankedMatchCountRef.once('value');
+
+    // Get current Ranked match count.
+    const currentRankedMatchCount = currentRankedMatchCountSnapshot.val();
+
+    // Add Ranked Singles match count.
+    await rankedMatchCountRef.update({ doubles: currentRankedMatchCount.doubles + 1 });
+}
+
+module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill, addRankedSinglesMatchCount, addRankedDoublesMatchCount };
