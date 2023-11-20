@@ -195,4 +195,31 @@ async function deleteReportData (reportId) {
     });
 }
 
-module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData };
+async function checkDxmatePlayerInMatch(discordId) {
+    const isInMatch = await cf.runTransaction(async (transaction) => {
+        // Get rooms reference.
+        const roomsRef = cf.collection('rooms');
+
+        // Get rooms snapshot.
+        const roomsSnapshot = await transaction.get(roomsRef);
+
+        return roomsSnapshot.docs.some((doc) => {
+            // Get room data.
+            const roomData = doc.data();
+
+            // Get players field.
+            const players = roomData.players || [];
+
+            // Check if Discord ID exists in players
+            return players.some((player) => {
+                const playerDiscordId = player.discordUserData.id;
+                return playerDiscordId === discordId;
+            });
+        });
+    });
+
+    return isInMatch;
+}
+
+
+module.exports = { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData, checkDxmatePlayerInMatch };
