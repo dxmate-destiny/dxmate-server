@@ -5,4 +5,16 @@ function shuffleArray(array) {
     }
 }
 
-module.exports = { shuffleArray };
+function createDoublesConnectCode () {
+    let result = '';
+
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    return result;
+}
+
+module.exports = { shuffleArray, createDoublesConnectCode };

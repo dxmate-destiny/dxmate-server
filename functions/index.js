@@ -6,6 +6,7 @@ const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, 
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData, checkDxmatePlayerInMatch } = require('./modules/cloud-firestore-manager');
 const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
+const { createDoublesConnectCode } = require('./modules/utils');
 
 app.get('/players/:discordId/check', async (req, res) => {
     logger.info('Received /players/:discordId/exists endpoint request.');
@@ -330,6 +331,16 @@ app.post('/rooms/team/create', async (req, res) => {
     logger.info('Created Team:', teamCreatedPlayers);
 
     return res.status(200).json(teamCreatedPlayers);
+});
+
+app.get('/rooms/team/connect-code/create', (req, res) => {
+    logger.info('Received /rooms/team/connect-code/create endpoint request.');
+
+    // Create a new 6 digit connect code.
+    const doublesConnectCode = createDoublesConnectCode();
+    logger.info('Created Doubles connect code:', doublesConnectCode);
+
+    res.status(200).json(doublesConnectCode);
 });
 
 app.post('/rooms/delete', async (req, res) => {
