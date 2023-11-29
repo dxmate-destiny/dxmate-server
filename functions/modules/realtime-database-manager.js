@@ -1,4 +1,5 @@
 const { rd } = require("./firebase-productions-manager");
+const { calcRankPoints } = require("./rank-manager");
 
 async function checkDxmatePlayerRegistered (discordId) {
     // Get DXmate player data reference.
@@ -86,4 +87,43 @@ async function addRankedDoublesMatchCount (discordId) {
     await rankedMatchCountRef.update({ doubles: currentRankedMatchCount.doubles + 1 });
 }
 
-module.exports = { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill, addRankedSinglesMatchCount, addRankedDoublesMatchCount };
+async function getSinglesTop50Players () {
+    // Get players reference.
+    const playersRef = rd.ref('players');
+
+    // Get players snapshot.
+    const playersSnapshot = await playersRef.once('value');
+
+    const players = [];
+
+    playersSnapshot.forEach((playerSnapshot) => {
+        // Get player data.
+        const playerData = playerSnapshot.val();
+
+        // Get Singles skill.
+        const singlesSkill = playerData.skill.singles;
+
+        // Get Rank Point.
+        const rankPoint = calcRankPoints(singlesSkill.mu, singlesSkill.sigma);
+
+        // Push to players array.
+        players.push({ discordId: playerSnapshot.key, rankPoint });
+    });
+
+    // Sort by Rank Point.
+    players.sort((a, b) => b.rankPoint - a.rankPoint);
+    const singlesTop50Players = players.slice(0, 50);
+
+    return singlesTop50Players;
+}
+
+module.exports = {
+    checkDxmatePlayerRegistered,
+    registerDxmatePlayer,
+    getDxmatePlayerData,
+    saveSinglesUpdatedSkill,
+    saveDoublesUpdatedSkill,
+    addRankedSinglesMatchCount,
+    addRankedDoublesMatchCount,
+    getSinglesTop50Players
+};

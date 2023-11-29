@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const logger = require("firebase-functions/logger");
 
 const { app } = require('./modules/dxmate-api-manager');
-const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill, addRankedSinglesMatchCount, addRankedDoublesMatchCount } = require('./modules/realtime-database-manager');
+const { checkDxmatePlayerRegistered, registerDxmatePlayer, getDxmatePlayerData, saveUpdatedSkill, saveSinglesUpdatedSkill, saveDoublesUpdatedSkill, addRankedSinglesMatchCount, addRankedDoublesMatchCount, getSinglesTop50Players } = require('./modules/realtime-database-manager');
 const { calcRankPoints, getRankName, getRankLevel } = require('./modules/rank-manager');
 const { searchRoom, createRoom, getRoomData, createTeam, saveReportData, getReportData, deleteRoomData, deleteReportData, checkDxmatePlayerInMatch } = require('./modules/cloud-firestore-manager');
 const { updateSinglesSkill, updateDoublesSkill } = require('./modules/openskill-manager');
@@ -469,5 +469,22 @@ app.post('/skill/doubles/update', (req, res) => {
     res.status(200).json(updatedDoublesSkill);
 });
 
+app.get('/leaderboard/singles', async (req, res) => {
+    logger.info('Received /leaderboard/singles endpoint request.');
+
+    let singlesTop50Players = [];
+
+    try {
+        // Get Singles Top 50 players.
+        singlesTop50Players = await getSinglesTop50Players();
+        logger.info('Retrieved Singles Top 50 players.');
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send(error.message);
+    }
+
+    res.status(200).json(singlesTop50Players);
+});
+
 // Publish DXmate API.
-exports.api = functions.https.onRequest(app);
+exports.testapi = functions.https.onRequest(app);
