@@ -87,7 +87,7 @@ async function addRankedDoublesMatchCount (discordId) {
     await rankedMatchCountRef.update({ doubles: currentRankedMatchCount.doubles + 1 });
 }
 
-async function getSinglesTop50Players () {
+async function getSinglesTop16Players () {
     // Get players reference.
     const playersRef = rd.ref('players');
 
@@ -112,9 +112,39 @@ async function getSinglesTop50Players () {
 
     // Sort by Rank Point.
     players.sort((a, b) => b.rankPoint - a.rankPoint);
-    const singlesTop50Players = players.slice(0, 50);
+    const singlesTop16Players = players.slice(0, 16);
 
-    return singlesTop50Players;
+    return singlesTop16Players;
+}
+
+async function getDoublesTop16Players () {
+    // Get players reference.
+    const playersRef = rd.ref('players');
+
+    // Get players snapshot.
+    const playersSnapshot = await playersRef.once('value');
+
+    const players = [];
+
+    playersSnapshot.forEach((playerSnapshot) => {
+        // Get player data.
+        const playerData = playerSnapshot.val();
+
+        // Get Doubles skill.
+        const doublesSkill = playerData.skill.doubles;
+
+        // Get Rank Point.
+        const rankPoint = calcRankPoints(doublesSkill.mu, doublesSkill.sigma);
+
+        // Push to players array.
+        players.push({ discordId: playerSnapshot.key, rankPoint });
+    });
+
+    // Sort by Rank Point.
+    players.sort((a, b) => b.rankPoint - a.rankPoint);
+    const doublesTop16Players = players.slice(0, 16);
+
+    return doublesTop16Players;
 }
 
 module.exports = {
@@ -125,5 +155,6 @@ module.exports = {
     saveDoublesUpdatedSkill,
     addRankedSinglesMatchCount,
     addRankedDoublesMatchCount,
-    getSinglesTop50Players
+    getSinglesTop16Players,
+    getDoublesTop16Players
 };
