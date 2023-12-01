@@ -504,4 +504,4 @@ app.get('/leaderboard/doubles', async (req, res) => {
 });
 
 // Publish DXmate API.
-exports.testapi = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);
